@@ -1,0 +1,2 @@
+include ':app', ':payments', ':login', ':features'
+rootProject.name='Android Dynamic Feature Modules'

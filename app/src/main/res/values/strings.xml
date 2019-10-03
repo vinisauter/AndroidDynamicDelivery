@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Android Dynamic Feature Modules</string>
+    <string name="title_payments">Payments</string>
+    <string name="title_activity_payments">PaymentsActivity</string>
+    <string name="title_login">Login</string>
+    <string name="title_activity_login">Sign in</string>
+</resources>
