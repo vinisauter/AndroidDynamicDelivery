@@ -11,6 +11,7 @@ public class FeatureProvider {
             "androidx.lifecycle.FeatureProvider.DefaultKey";
     // TODO: replace with FeatureOwner
     private final Object owner;
+    private final HashMap<String, Object> mFeatureStore = new HashMap<>();
     private final Factory factory;
 
     public FeatureProvider(@NonNull Object owner) {
@@ -27,14 +28,35 @@ public class FeatureProvider {
     @NonNull
     @MainThread
     public <T> T get(@NonNull Class<T> featureClass) {
-        return factory.create(featureClass);
+        String canonicalName = featureClass.getCanonicalName();
+        if (canonicalName == null) {
+            throw new IllegalArgumentException("Local and anonymous classes can not be Features");
+        }
+        return get(DEFAULT_KEY + ":" + canonicalName, featureClass);
+    }
+
+    @SuppressWarnings("unchecked")
+    @NonNull
+    @MainThread
+    private <T> T get(@NonNull String key, @NonNull Class<T> featureClass) {
+        Object feature = mFeatureStore.get(key);
+        if (featureClass.isInstance(feature)) {
+            return (T) feature;
+        } else {
+            //noinspection StatementWithEmptyBody
+            if (feature != null) {
+                // TODO: log a warning.
+            }
+        }
+        feature = factory.create(featureClass);
+        mFeatureStore.put(key, feature);
+        return (T) feature;
     }
 
     /**
      * Simple factory, which finds the implementation of the provided interface and calls its empty constructor via ServiceLoader
      */
     public static class ServiceLoaderFactory implements Factory {
-        HashMap<String, Object> mFeatureStore = new HashMap<>();
 
         private static ServiceLoaderFactory sInstance;
 
@@ -54,33 +76,6 @@ public class FeatureProvider {
         @NonNull
         @Override
         public <T> T create(@NonNull Class<T> featureClass) {
-            String canonicalName = featureClass.getCanonicalName();
-            if (canonicalName == null) {
-                throw new IllegalArgumentException("Local and anonymous classes can not be Features");
-            }
-            return get(DEFAULT_KEY + ":" + canonicalName, featureClass);
-        }
-
-        @SuppressWarnings("unchecked")
-        @NonNull
-        @MainThread
-        private <T> T get(@NonNull String key, @NonNull Class<T> featureClass) {
-            Object feature = mFeatureStore.get(key);
-            if (featureClass.isInstance(feature)) {
-                return (T) feature;
-            } else {
-                //noinspection StatementWithEmptyBody
-                if (feature != null) {
-                    // TODO: log a warning.
-                }
-            }
-            feature = get(featureClass);
-            mFeatureStore.put(key, feature);
-            return (T) feature;
-        }
-
-        @NonNull
-        private <T> T get(@NonNull Class<T> featureClass) {
             // Ask ServiceLoader for concrete implementations of StorageFeature.Provider
             // Explicitly use the 2-argument version of load to enable R8 optimization.
             ServiceLoader<T> serviceLoader = ServiceLoader.load(featureClass, featureClass.getClassLoader());
