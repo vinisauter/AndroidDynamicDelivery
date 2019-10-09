@@ -8,7 +8,9 @@ import androidx.lifecycle.LiveEvent;
 import com.example.dynamic.login.LoginFlowFeature;
 import com.example.dynamic.login.data.LoginStatus;
 import com.example.login.ui.login.LoginActivity;
+import com.google.auto.service.AutoService;
 
+@AutoService(LoginFlowFeature.class)
 public class LoginFlowImpl implements LoginFlowFeature {
     // TODO: get it from ViewModel
     public static final LiveEvent<LoginStatus> loginStatusLiveEvent = new LiveEvent<LoginStatus>() {{

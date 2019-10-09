@@ -4,12 +4,14 @@ import com.example.dynamic.login.LoginDataFeature;
 import com.example.dynamic.login.data.User;
 import com.example.login.data.LoginRepository;
 import com.example.login.data.model.LoggedInUser;
+import com.google.auto.service.AutoService;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.functions.Function;
 
+@AutoService(LoginDataFeature.class)
 public class LoginDataImpl implements LoginDataFeature {
     private LoginRepository loginRepository = LoginRepository.getInstance();
 
