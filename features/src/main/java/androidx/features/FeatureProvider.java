@@ -4,12 +4,14 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 
+@SuppressWarnings("WeakerAccess")
 public class FeatureProvider {
-    private static final String DEFAULT_KEY =
-            "androidx.lifecycle.FeatureProvider.DefaultKey";
-    // TODO: replace with FeatureOwner
+    private static final String DEFAULT_KEY = "FeatureProvider.DefaultKey";
+
+    @SuppressWarnings({"unused", "FieldCanBeLocal"})// TODO: replace with FeatureOwner
     private final Object owner;
     private final HashMap<String, Object> mFeatureStore = new HashMap<>();
     private final Factory factory;
@@ -48,7 +50,18 @@ public class FeatureProvider {
                 // TODO: log a warning.
             }
         }
-        feature = factory.create(featureClass);
+        try {
+            feature = factory.create(featureClass);
+        } catch (NoSuchElementException throwable) {
+            FeatureFromModule featureFromModule = featureClass.getAnnotation(FeatureFromModule.class);
+            if (featureFromModule != null) {
+                throw new IllegalArgumentException("Feature implementation where not found. \n" +
+                        "Make sure you have downloaded the module \"" + featureFromModule.value() + "\" first, and that you have defined the service inplementation, via META-INF.service, or via @AutoService for class " + featureClass.getCanonicalName(), throwable);
+            } else {
+                throw new IllegalArgumentException("Feature implementation where not found. \n" +
+                        "Please use @FeatureFromModule(\"the_module_name\") to define the model that this class is implemented", throwable);
+            }
+        }
         mFeatureStore.put(key, feature);
         return (T) feature;
     }

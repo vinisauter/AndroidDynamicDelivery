@@ -1,14 +1,16 @@
 package com.example.dynamic.login;
 
-import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.LiveEvent;
+import androidx.features.FeatureFromModule;
 
 import com.example.dynamic.login.data.LoginStatus;
 
+@FeatureFromModule("login")
 public interface LoginFlowFeature {
     String MODULE_NAME = "login";
 
-    void start(FragmentActivity activity);
+    interface LoginCallback {
+        void onLoginStatusChanged(LoginStatus loginStatusResult);
+    }
 
-    LiveEvent<LoginStatus> loginState();
+    void startLogin(LoginCallback callback);
 }

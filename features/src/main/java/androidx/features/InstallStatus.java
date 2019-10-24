@@ -7,6 +7,9 @@ import com.google.android.play.core.splitinstall.SplitInstallManager;
 import com.google.android.play.core.splitinstall.SplitInstallSessionState;
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 public enum InstallStatus {
     UNKNOWN(SplitInstallSessionStatus.UNKNOWN),
@@ -21,14 +24,14 @@ public enum InstallStatus {
     CANCELED(SplitInstallSessionStatus.CANCELED);
 
     private final int installStatus;
+    private SplitInstallSessionState state;
+    private SplitInstallManager splitInstallManager;
+    private Exception error;
+    private Set<String> modules;
 
     InstallStatus(@SplitInstallSessionStatus int installStatus) {
         this.installStatus = installStatus;
     }
-
-    private SplitInstallSessionState state;
-    private SplitInstallManager splitInstallManager;
-    private Exception error;
 
     public boolean startConfirmationDialogForResult(Activity activity, int requestCode) {
         try {
@@ -40,7 +43,10 @@ public enum InstallStatus {
     }
 
     public static InstallStatus valueOf(SplitInstallManager manager, SplitInstallSessionState state) {
-        return valueOf(state.status()).setState(state).setManager(manager);
+        Set<String> modules = new HashSet<>();
+        if (state.moduleNames() != null)
+            modules.addAll(state.moduleNames());
+        return valueOf(state.status()).setState(state).setManager(manager).setModules(modules);
     }
 
     public SplitInstallSessionState getState() {
@@ -92,8 +98,15 @@ public enum InstallStatus {
         return error;
     }
 
-    public <T> T getFeature(Class<T> featureClass) {
-        return new FeatureProvider(this).get(featureClass);
+    public InstallStatus setModules(Set<String> modules) {
+        this.modules = modules;
+        return this;
+    }
+
+    public Set<String> getModules() {
+        if (modules == null)
+            return new HashSet<>();
+        return modules;
     }
 
     public long getDownloadPercentage() {
@@ -120,5 +133,13 @@ public enum InstallStatus {
                 break;
         }
         return percentageCounter;
+    }
+
+    public Boolean isInstalling() {
+        return installStatus == SplitInstallSessionStatus.INSTALLING;
+    }
+
+    public Boolean isInstalled() {
+        return installStatus == SplitInstallSessionStatus.INSTALLED;
     }
 }

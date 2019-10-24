@@ -1,13 +1,17 @@
 package com.example.dynamic.login;
 
+import androidx.features.FeatureFromModule;
+import androidx.lifecycle.LiveData;
+
 import com.example.dynamic.login.data.User;
 
-import io.reactivex.Flowable;
-
+@FeatureFromModule("login")
 public interface LoginDataFeature {
     String MODULE_NAME = "login";
 
-    Flowable<User> getUser();
+    LiveData<User> getUser();
 
-    Flowable<String> getToken();
+    LiveData<String> getToken();
+
+    LiveData<Boolean> isAuthenticated();
 }

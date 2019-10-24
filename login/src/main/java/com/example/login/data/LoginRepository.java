@@ -1,5 +1,8 @@
 package com.example.login.data;
 
+import androidx.lifecycle.MutableLiveData;
+
+import com.example.dynamic.login.data.LoginStatus;
 import com.example.login.data.model.LoggedInUser;
 
 /**
@@ -9,8 +12,8 @@ import com.example.login.data.model.LoggedInUser;
 public class LoginRepository {
 
     private static volatile LoginRepository instance;
-
     private LoginDataSource dataSource;
+    private MutableLiveData<LoginStatus> loginStatusLiveData = new MutableLiveData<>();
 
     // If user credentials will be cached in local storage, it is recommended it be encrypted
     // @see https://developer.android.com/training/articles/keystore
@@ -19,16 +22,13 @@ public class LoginRepository {
     // private constructor : singleton access
     private LoginRepository(LoginDataSource dataSource) {
         this.dataSource = dataSource;
-    }
-
-    public static LoginRepository createInstance(LoginDataSource dataSource) {
-        if (instance == null) {
-            instance = new LoginRepository(dataSource);
-        }
-        return instance;
+        this.loginStatusLiveData.postValue(LoginStatus.AUTHENTICATION_REQUIRED);
     }
 
     public static LoginRepository getInstance() {
+        if (instance == null) {
+            instance = new LoginRepository(new LoginDataSource());
+        }
         return instance;
     }
 
@@ -52,12 +52,19 @@ public class LoginRepository {
         // handle login
         Result<LoggedInUser> result = dataSource.login(username, password);
         if (result instanceof Result.Success) {
+            this.loginStatusLiveData.postValue(LoginStatus.AUTHENTICATED);
             setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
+        } else {
+            this.loginStatusLiveData.postValue(LoginStatus.ERROR);
         }
         return result;
     }
 
     public LoggedInUser getUser() {
         return user;
+    }
+
+    public MutableLiveData<LoginStatus> getLoginState() {
+        return this.loginStatusLiveData;
     }
 }

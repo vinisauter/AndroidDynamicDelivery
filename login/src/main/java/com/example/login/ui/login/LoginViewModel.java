@@ -2,38 +2,22 @@ package com.example.login.ui.login;
 
 import android.util.Patterns;
 
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.LiveEvent;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.dynamic.login.data.LoginStatus;
 import com.example.login.R;
 import com.example.login.data.LoginRepository;
 import com.example.login.data.Result;
 import com.example.login.data.model.LoggedInUser;
 
 public class LoginViewModel extends ViewModel {
-
     private MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
     private MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
     private LoginRepository loginRepository;
-    private LiveEvent<LoginStatus> loginStatus = new LiveEvent<>(loginResult, new Function<LoginResult, LoginStatus>() {
-        @Override
-        public LoginStatus apply(LoginResult loginResult) {
-            if (loginResult.getError() != null) {
-                return LoginStatus.ERROR;
-            }
-            if (loginResult.getSuccess() != null) {
-                return LoginStatus.AUTHENTICATED;
-            }
-            return null;
-        }
-    });
 
-    LoginViewModel(LoginRepository loginRepository) {
-        this.loginRepository = loginRepository;
+    public LoginViewModel() {
+        this.loginRepository = LoginRepository.getInstance();
     }
 
     LiveData<LoginFormState> getLoginFormState() {
@@ -81,9 +65,5 @@ public class LoginViewModel extends ViewModel {
     // A placeholder password validation check
     private boolean isPasswordValid(String password) {
         return password != null && password.trim().length() > 5;
-    }
-
-    public LiveEvent<LoginStatus> onLoginStatusChanged() {
-        return loginStatus;
     }
 }

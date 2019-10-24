@@ -18,8 +18,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':app')
 
-    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0-alpha05"
-    implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0-alpha05"
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0-beta01"
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0-beta01"
 
     implementation project(path: ':features')
 }

@@ -1,40 +1,68 @@
 package com.example.login;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
+import androidx.lifecycle.MediatorLiveData;
+
 import com.example.dynamic.login.LoginDataFeature;
+import com.example.dynamic.login.data.LoginStatus;
 import com.example.dynamic.login.data.User;
 import com.example.login.data.LoginRepository;
 import com.example.login.data.model.LoggedInUser;
-import com.google.auto.service.AutoService;
 
 import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.functions.Function;
 
-@AutoService(LoginDataFeature.class)
 public class LoginDataImpl implements LoginDataFeature {
+    private static LoginDataFeature instance;
     private LoginRepository loginRepository = LoginRepository.getInstance();
 
-    @Override
-    public Flowable<User> getUser() {
-        return Observable.just(loginRepository.getUser()).map(new Function<LoggedInUser, User>() {
-            @Override
-            public User apply(LoggedInUser loggedInUser) throws Exception {
-                User user = new User();
-                user.setUserId(loggedInUser.getUserId());
-                user.setNome(loggedInUser.getDisplayName());
-                return user;
-            }
-        }).toFlowable(BackpressureStrategy.LATEST);
+    public static LoginDataFeature getInstance() {
+        if (instance == null)
+            instance = new LoginDataImpl();
+        return instance;
     }
 
     @Override
-    public Flowable<String> getToken() {
-        return Observable.just(loginRepository.getUser()).map(new Function<LoggedInUser, String>() {
-            @Override
-            public String apply(LoggedInUser loggedInUser) throws Exception {
-                return loggedInUser.getUserId();
+    public LiveData<User> getUser() {
+        return LiveDataReactiveStreams.fromPublisher(Observable.just(loginRepository.getUser())
+                .map(new Function<LoggedInUser, User>() {
+                    @Override
+                    public User apply(LoggedInUser loggedInUser) throws Exception {
+                        User user = new User();
+                        user.setUserId(loggedInUser.getUserId());
+                        user.setNome(loggedInUser.getDisplayName());
+                        return user;
+                    }
+                }).toFlowable(BackpressureStrategy.LATEST)
+        );
+    }
+
+    @Override
+    public LiveData<String> getToken() {
+        return LiveDataReactiveStreams.fromPublisher(Observable.just(loginRepository.getUser())
+                .map(new Function<LoggedInUser, String>() {
+                    @Override
+                    public String apply(LoggedInUser loggedInUser) throws Exception {
+                        return loggedInUser.getUserId();
+                    }
+                }).toFlowable(BackpressureStrategy.LATEST)
+        );
+    }
+
+    public LiveData<Boolean> isAuthenticated() {
+        MediatorLiveData<Boolean> isAuthenticatedLiveData = new MediatorLiveData<>();
+        if (loginRepository.getLoginState().getValue() == null) {
+            isAuthenticatedLiveData.setValue(false);
+        }
+        isAuthenticatedLiveData.addSource(loginRepository.getLoginState(), loginStatus -> {
+            Boolean oldvalue = isAuthenticatedLiveData.getValue();
+            Boolean newValue = loginStatus == LoginStatus.AUTHENTICATED;
+            if (newValue != oldvalue) {
+                isAuthenticatedLiveData.setValue(newValue);
             }
-        }).toFlowable(BackpressureStrategy.LATEST);
+        });
+        return isAuthenticatedLiveData;
     }
 }

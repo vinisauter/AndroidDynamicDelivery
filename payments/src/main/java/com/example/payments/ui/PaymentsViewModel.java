@@ -2,7 +2,6 @@ package com.example.payments.ui;
 
 import androidx.features.DataFeatureProvider;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.ViewModel;
 
 import com.example.dynamic.login.LoginDataFeature;
@@ -17,10 +16,7 @@ public class PaymentsViewModel extends ViewModel {
 
     public PaymentsViewModel() {
         loginDataFeature = new DataFeatureProvider(this).get(LoginDataFeature.class);
-        userLiveData = LiveDataReactiveStreams.fromPublisher(loginDataFeature.getUser());
-        compositeDisposable.add(loginDataFeature.getToken().subscribe(token -> {
-
-        }));
+        userLiveData = loginDataFeature.getUser();
     }
 
 }

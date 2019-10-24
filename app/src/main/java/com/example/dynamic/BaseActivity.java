@@ -1,8 +1,8 @@
 package com.example.dynamic;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.activity.CompatActivity;
 
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends CompatActivity {
 //    static final class NonConfigurationInstances {
 //        Object custom;
 //        FeatureStore viewModelStore;
