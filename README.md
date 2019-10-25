@@ -28,3 +28,8 @@ dependencies {
 IMPLEMENTATION
 ----
 
+# Donation
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ESPRDCXCN3RD2&currency_code=BRL&source=url)
+
+[![ko-fi](https://www.ko-fi.com/img/donate_sm.png)](https://ko-fi.com/S6S8JJNM)
