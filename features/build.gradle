@@ -38,5 +38,5 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
-    api "com.google.android.play:core:1.6.3"
+    api 'com.google.android.play:core:1.6.4'
 }
