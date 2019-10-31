@@ -158,7 +158,7 @@ public class DynamicViewModel extends AndroidViewModel {
         SplitInstallRequest request = builder.build();
 
         splitInstallManager.startInstall(request)
-                .addOnFailureListener(exception -> installStatus.setValue(InstallStatus.FAILED.setError(exception)))
+                .addOnFailureListener(exception -> installStatus.setValue(InstallStatus.FAILED.setModules(modules).setError(exception)))
                 .addOnSuccessListener(sessionId -> this.sessionId = sessionId);
     }
 

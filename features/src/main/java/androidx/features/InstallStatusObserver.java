@@ -1,5 +1,6 @@
 package androidx.features;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.lifecycle.Observer;
@@ -30,10 +31,20 @@ public abstract class InstallStatusObserver implements Observer<InstallStatus> {
                     installed(installStatus);
                     break;
                 case FAILED:
-                    failed(new InstallationException("Installation failed. " + installStatus.getState().errorCode()));
+                    Exception error = installStatus.getError();
+                    if (error != null) {
+                        String message = error.getLocalizedMessage();
+                        if (TextUtils.isEmpty(message)) {
+                            failed(new InstallationException("Installation failed. " + installStatus, error));
+                        } else {
+                            failed(new InstallationException(message, error));
+                        }
+                    } else {
+                        failed(new InstallationException("Installation failed. " + installStatus));
+                    }
                     break;
                 case CANCELED:
-                    failed(new InstallationException("Installation canceled. " + installStatus.getState().errorCode()));
+                    failed(new InstallationException("Installation canceled."));
                     break;
             }
         } catch (Exception e) {
