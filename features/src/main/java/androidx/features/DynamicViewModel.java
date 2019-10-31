@@ -19,7 +19,7 @@ import java.util.Set;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class DynamicViewModel extends AndroidViewModel {
-    private FeatureProvider featureProvider = new FeatureProvider(this);
+    private final FeatureProvider featureProvider = new FeatureProvider(this);
     private final SplitInstallManager splitInstallManager = SplitInstallManagerFactory.create(getApplication());
     private Integer sessionId = 0;
 
